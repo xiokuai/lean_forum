@@ -7,33 +7,14 @@
     <title>{% block title %}Lean Forum{% endblock %}</title>
     <meta name="color-scheme" content="light dark" />
     <script>
+      // 首屏尽早设置主题，避免 FOUC；详细切换逻辑统一由 body 末尾 syncTheme 处理
       (function () {
         try {
-          function getTheme() {
-            var saved = localStorage.getItem('theme');
-            if (saved === 'light' || saved === 'dark') return saved;
-            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-          }
-          var t = getTheme();
+          var saved = localStorage.getItem('theme');
+          var t = saved === 'light' || saved === 'dark'
+            ? saved
+            : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
           document.documentElement.setAttribute('data-bs-theme', t);
-          document.documentElement.setAttribute('data-theme-initialized', '1');
-          // 禁用不符合当前主题的 markdown / highlight 样式表，避免首屏 FOUC
-          var applyDisabled = function () {
-            var isDark = t === 'dark';
-            var ml = document.getElementById('github-markdown-light');
-            var md = document.getElementById('github-markdown-dark');
-            if (ml) ml.disabled = isDark;
-            if (md) md.disabled = !isDark;
-            var hl = document.getElementById('highlightjs-light');
-            var hd = document.getElementById('highlightjs-dark');
-            if (hl) hl.disabled = isDark;
-            if (hd) hd.disabled = !isDark;
-          };
-          if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', applyDisabled, { once: true });
-          } else {
-            applyDisabled();
-          }
         } catch (_) {}
       })();
     </script>
@@ -255,6 +236,12 @@
       const markdownDark = document.getElementById('github-markdown-dark');
       const prefersDarkMedia = window.matchMedia('(prefers-color-scheme: dark)');
       const btn = document.getElementById('back-to-top');
+
+      function getTheme() {
+        const saved = localStorage.getItem('theme');
+        if (saved === 'light' || saved === 'dark') return saved;
+        return prefersDarkMedia.matches ? 'dark' : 'light';
+      }
 
       function updateThemeIcon(isDark) {
         if (themeIcon) {

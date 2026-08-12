@@ -21,9 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# 仅当未设置环境变量时使用开发占位密钥；生产环境必须通过 SECRET_KEY 环境变量注入
-_SECRET_KEY_ENV = os.environ.get("SECRET_KEY")
-SECRET_KEY = _SECRET_KEY_ENV or 'django-insecure-dev-placeholder-change-me'
+SECRET_KEY = os.environ.get("SECRET_KEY", default='django-insecure-dev-placeholder-change-me')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get("DEBUG", default=0))
@@ -68,12 +66,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# 建议通过 CORS_ALLOWED_ORIGINS 环境变量配置生产来源（逗号分隔）
-_CORS_ENV = os.environ.get("CORS_ALLOWED_ORIGINS")
-if _CORS_ENV:
-    CORS_ALLOWED_ORIGINS = [o.strip() for o in _CORS_ENV.split(",") if o.strip()]
-else:
-    CORS_ALLOWED_ORIGINS = []
+# 通过 CORS_ALLOWED_ORIGINS 环境变量配置生产来源（逗号分隔）
+CORS_ALLOWED_ORIGINS = [
+    o.strip()
+    for o in os.environ.get("CORS_ALLOWED_ORIGINS", "").split(",")
+    if o.strip()
+]
 
 # 仅在 DEBUG 且未配置 CORS_ALLOWED_ORIGINS 时允许全部来源，
 # 防止生产部署遗忘来源列表带来的 CSRF/CORS 风险
