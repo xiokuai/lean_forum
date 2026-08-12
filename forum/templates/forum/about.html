@@ -1,28 +1,135 @@
 {% extends 'base.html' %}
 
-{% block title %}关于Lean forum{% endblock %}
+{% block title %}关于 Lean Forum{% endblock %}
 
 {% block content %}
-  <h1 class="mt-5">关于我们的论坛(Lean forum)</h1>
-  <p class="lead">一个简单但多样的论坛</p>
+  <header class="mb-4">
+    <h1 class="h3 mb-1">关于 Lean Forum</h1>
+    <p class="text-muted mb-0">一个简单但多样的论坛，支持评分、发文、合集与机器人</p>
+  </header>
 
-  <h3>论坛规则</h3>
-  <ul>
-    <li>尊重他人，避免恶意攻击。</li>
-  </ul>
+  <section aria-labelledby="introHeading" class="mb-4">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h2 id="introHeading" class="h5 card-title mb-3">
+          <span aria-hidden="true">{% include 'forum/icons/chat-left.svg' %}</span>
+          简介
+        </h2>
+        <p class="card-text text-muted mb-0">
+          Lean Forum 是一个轻量级的 Django 论坛，核心功能包括发帖评论、
+          自定义合集、项目打分、AI 机器人回复、Web Push 通知与 REST API。
+          设计上追求克制的视觉与自然的阅读体验，支持明亮与暗黑两套主题。
+        </p>
+      </div>
+    </div>
+  </section>
 
-  <h3>论坛机器人</h3>
-  <p>论坛AI机器人叫做bot, 发帖时使用 @bot 召唤它</p>
+  <div class="row g-4 mb-4">
+    <div class="col-md-6">
+      <section aria-labelledby="rulesHeading">
+        <h2 id="rulesHeading" class="h5 mb-3">
+          <span aria-hidden="true">{% include 'forum/icons/exclamation-triangle-fill.svg' %}</span>
+          社区规则
+        </h2>
+        <ul class="list-group">
+          <li class="list-group-item">尊重他人，避免人身攻击与恶意言论</li>
+          <li class="list-group-item">原创内容请注明来源，不发布侵权信息</li>
+          <li class="list-group-item">不发布违法或违反公序良俗的内容</li>
+          <li class="list-group-item">讨论请围绕话题，不灌水不刷屏</li>
+        </ul>
+      </section>
+    </div>
 
-  <h3>相关信息</h3>
-  <p>你可以在下列地方联系维护者或查看源代码</p>
-  <ul>
-    <li>
-      Github:
-      <a href="https://github.com/aba2222/lean_forum">github.com/aba2222/lean_forum</a>
-    </li>
-  </ul>
+    <div class="col-md-6">
+      <section aria-labelledby="featuresHeading">
+        <h2 id="featuresHeading" class="h5 mb-3">
+          <span aria-hidden="true">{% include 'forum/icons/collection.svg' %}</span>
+          主要功能
+        </h2>
+        <ul class="list-group">
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            发帖与 Markdown 评论
+            <span class="badge bg-secondary">标配</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            自定义合集（收藏夹）
+            <span class="badge bg-secondary">标配</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            项目评分系统
+            <span class="badge bg-secondary">标配</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            AI 机器人（@bot 召唤）
+            <span class="badge bg-secondary">可选</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            Web Push 新帖推送
+            <span class="badge bg-secondary">可选</span>
+          </li>
+        </ul>
+      </section>
+    </div>
+  </div>
 
-  <h3>感谢您的支持</h3>
-  <p>我们非常感谢每一位用户对论坛的支持和参与！</p>
+  <section aria-labelledby="botHeading" class="mb-4">
+    <div class="card border-0 bg-body-tertiary">
+      <div class="card-body">
+        <h2 id="botHeading" class="h5 card-title mb-2">
+          <span aria-hidden="true">{% include 'forum/icons/person-circle.svg' %}</span>
+          论坛机器人
+        </h2>
+        <p class="card-text mb-2">
+          论坛内置的 AI 机器人叫做 <strong>bot</strong>，在发帖内容中使用
+          <code>@bot</code> 即可召唤它，它会在帖子下自动回复评论。
+        </p>
+        <p class="card-text text-muted small mb-0">
+          提示：机器人在独立守护线程中运行，不会阻塞你发帖。如果帖子被删除，
+          机器人也会安全跳过而不会报错。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="contactHeading" class="mb-4">
+    <h2 id="contactHeading" class="h5 mb-3">
+      <span aria-hidden="true">{% include 'forum/icons/info-circle.svg' %}</span>
+      相关信息
+    </h2>
+    <ul class="list-group">
+      <li class="list-group-item d-flex align-items-center gap-3">
+        <span aria-hidden="true">{% include 'forum/icons/pencil-square.svg' %}</span>
+        <div class="flex-grow-1">
+          <div class="fw-medium">源代码仓库</div>
+          <a
+            href="https://github.com/aba2222/lean_forum"
+            class="text-decoration-none small"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            github.com/aba2222/lean_forum
+          </a>
+        </div>
+      </li>
+      <li class="list-group-item d-flex align-items-center gap-3">
+        <span aria-hidden="true">{% include 'forum/icons/person.svg' %}</span>
+        <div class="flex-grow-1">
+          <div class="fw-medium">Issue / 建议反馈</div>
+          <a
+            href="https://github.com/aba2222/lean_forum/issues"
+            class="text-decoration-none small"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            在 GitHub Issues 中提交
+          </a>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <div class="alert alert-light border d-flex align-items-center gap-2 mb-0" role="alert">
+    <span aria-hidden="true">{% include 'forum/icons/chat-left.svg' %}</span>
+    <div class="mb-0">感谢每一位用户的支持与参与，Lean Forum 会持续保持简单而好用。</div>
+  </div>
 {% endblock %}
