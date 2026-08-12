@@ -7,35 +7,14 @@
     <title>{% block title %}Lean Forum{% endblock %}</title>
     <meta name="color-scheme" content="light dark" />
     <script>
-      (function () {
-        try {
-          function getTheme() {
-            var saved = localStorage.getItem('theme');
-            if (saved === 'light' || saved === 'dark') return saved;
-            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-          }
-          var t = getTheme();
-          document.documentElement.setAttribute('data-bs-theme', t);
-          document.documentElement.setAttribute('data-theme-initialized', '1');
-          // 禁用不符合当前主题的 markdown / highlight 样式表，避免首屏 FOUC
-          var applyDisabled = function () {
-            var isDark = t === 'dark';
-            var ml = document.getElementById('github-markdown-light');
-            var md = document.getElementById('github-markdown-dark');
-            if (ml) ml.disabled = isDark;
-            if (md) md.disabled = !isDark;
-            var hl = document.getElementById('highlightjs-light');
-            var hd = document.getElementById('highlightjs-dark');
-            if (hl) hl.disabled = isDark;
-            if (hd) hd.disabled = !isDark;
-          };
-          if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', applyDisabled, { once: true });
-          } else {
-            applyDisabled();
-          }
-        } catch (_) {}
-      })();
+      // 全局函数：body 末尾的主题切换脚本也需要调用
+      function getTheme() {
+        var saved = localStorage.getItem('theme');
+        if (saved === 'light' || saved === 'dark') return saved;
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      // 立即设置 data-bs-theme，避免 Bootstrap 主题 FOUC
+      document.documentElement.setAttribute('data-bs-theme', getTheme());
     </script>
     <link
       id="github-markdown-light"
@@ -60,6 +39,21 @@
       rel="stylesheet"
       href="https://unpkg.com/@highlightjs/cdn-assets@11.11.1/styles/github-dark.min.css"
     />
+    <script>
+      // 根据初始主题切换 markdown / highlight 样式表 disabled 状态，避免首屏 FOUC
+      // 此处 link 元素已解析，可直接操作，无需等 DOMContentLoaded
+      (function () {
+        var isDark = getTheme() === 'dark';
+        var ml = document.getElementById('github-markdown-light');
+        var md = document.getElementById('github-markdown-dark');
+        if (ml) ml.disabled = isDark;
+        if (md) md.disabled = !isDark;
+        var hl = document.getElementById('highlightjs-light');
+        var hd = document.getElementById('highlightjs-dark');
+        if (hl) hl.disabled = isDark;
+        if (hd) hd.disabled = !isDark;
+      })();
+    </script>
     <script src="https://unpkg.com/@highlightjs/cdn-assets@11.11.1/highlight.min.js"></script>
 
     <script
