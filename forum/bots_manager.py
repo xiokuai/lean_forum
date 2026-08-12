@@ -35,10 +35,16 @@ class BotsManager():
     @staticmethod
     def send_comment(post_id, id, message):
         with transaction.atomic():
+            try:
+                post = Post.objects.get(id=post_id)
+                author = User.objects.get(id=id)
+            except (Post.DoesNotExist, User.DoesNotExist):
+                # 帖子已被删除或机器人账号不存在，静默跳过
+                return
             Comment.objects.create(
-                post = Post.objects.get(id=post_id),
-                author = User.objects.get(id=id),
-                content = message
+                post=post,
+                author=author,
+                content=message
             )
 
 manager = BotsManager()

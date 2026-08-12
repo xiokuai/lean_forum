@@ -29,7 +29,7 @@ from forum.bots_manager import manager
 
 def index(request):
     items = Item.objects.all()
-    posts = Post.objects.all()[:6]
+    posts = Post.objects.order_by('-created_at')[:6]
     post_count = Post.objects.count()
     return render(request, 'forum/index.html', {'items': items, 'posts' : posts, 'post_count': post_count})
 
@@ -47,7 +47,14 @@ class PostListView(ListView):
 def rate_item(request, item_id):
     item = get_object_or_404(Item, id=item_id)
     if request.method == 'POST':
-        score = int(request.POST.get('score'))
+        try:
+            score = int(request.POST.get('score', ''))
+        except (TypeError, ValueError):
+            messages.error(request, '评分必须是 1-5 之间的整数。')
+            return redirect('rate_item', item_id=item.id)
+        if not 1 <= score <= 5:
+            messages.error(request, '评分必须在 1-5 之间。')
+            return redirect('rate_item', item_id=item.id)
         Rating.objects.update_or_create(
             user=request.user,
             item=item,
@@ -247,8 +254,13 @@ def about_view(request):
 # ---- Collection views ----
 
 def collection_list(request):
-    collections = Collection.objects.all()
-    return render(request, 'forum/collection_list.html', {'collections': collections})
+    collections = Collection.objects.select_related('owner').all()
+    paginator = Paginator(collections, 20)
+    page_obj = paginator.get_page(request.GET.get('page', 1))
+    return render(request, 'forum/collection_list.html', {
+        'collections': page_obj,
+        'page_obj': page_obj,
+    })
 
 
 @login_required
@@ -265,9 +277,12 @@ def collection_create(request):
 def collection_detail(request, collection_id):
     collection = get_object_or_404(Collection, id=collection_id)
     posts = collection.collection_posts.select_related('post', 'post__author').all()
+    paginator = Paginator(posts, 20)
+    page_obj = paginator.get_page(request.GET.get('page', 1))
     return render(request, 'forum/collection_detail.html', {
         'collection': collection,
-        'collection_posts': posts,
+        'collection_posts': page_obj,
+        'page_obj': page_obj,
     })
 
 
