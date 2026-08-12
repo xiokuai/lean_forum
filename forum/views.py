@@ -4,6 +4,7 @@ from django.db import models as db_models
 from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.utils import timezone
+from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, redirect, render
 from django.core.paginator import Paginator
@@ -80,7 +81,7 @@ class PostDetailView(View):
     def get(self, request, post_id):
         post = get_object_or_404(Post, id=post_id)
         Post.objects.filter(id=post_id).update(views=F('views') + 1)
-        post.views += 1
+        post.refresh_from_db(fields=['views'])
         forms = None
         if request.user.is_authenticated:
             forms = MDEditorCommentForm(user=request.user, post=post)
@@ -170,17 +171,29 @@ class PostDeleteView(LoginRequiredMixin, DeleteView):
         qs = super().get_queryset()
         return qs.filter(author=self.request.user)
 
+    def post(self, request, *args, **kwargs):
+        confirm_title = request.POST.get('confirm_title', '')
+        self.object = self.get_object()
+        if confirm_title != self.object.title:
+            messages.error(request, '确认标题不匹配，删除已取消。')
+            return redirect('post_detail', post_id=self.object.pk)
+        return super().post(request, *args, **kwargs)
+
 @login_required
 def comment_delete_view(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id, author=request.user)
     if request.method == 'POST':
         answer = request.POST.get('answer', '')
-        expected = request.POST.get('expected', '')
-        if answer == expected:
+        expected = request.session.get('comment_delete_expected')
+        if expected is not None and answer == str(expected):
+            request.session.pop('comment_delete_expected', None)
             post_id = comment.post.id
             comment.delete()
             return redirect('post_detail', post_id=post_id)
+        messages.error(request, '验证答案不正确，删除已取消。')
+        return redirect('post_detail', post_id=comment.post.id)
     a, b = random.randint(1, 9), random.randint(1, 9)
+    request.session['comment_delete_expected'] = a + b
     return render(request, 'forum/comment_check_delete.html', {
         'comment': comment, 'a': a, 'b': b, 'answer': a + b,
     })
@@ -212,13 +225,15 @@ def user_settings_view(request):
 def user_delete_view(request):
     if request.method == 'POST':
         password = request.POST.get('password')
+        username = request.POST.get('username', '')
+        confirm_text = request.POST.get('confirm_text', '')
         user = authenticate(request, username=request.user.username, password=password)
-        if user is not None:
+        if user is not None and username == request.user.username and confirm_text == '我要删除账户':
             logout(request)
             user.delete()
             return redirect('index')
         else:
-            messages.error(request, '密码错误，请重新输入')
+            messages.error(request, '账户信息不匹配，删除已取消。')
             return redirect('settings')
 
 def logout_view(request):
@@ -276,6 +291,14 @@ class CollectionDeleteView(LoginRequiredMixin, DeleteView):
 
     def get_queryset(self):
         return super().get_queryset().filter(owner=self.request.user)
+
+    def post(self, request, *args, **kwargs):
+        confirm_name = request.POST.get('confirm_name', '')
+        self.object = self.get_object()
+        if confirm_name != self.object.name:
+            messages.error(request, '确认名称不匹配，删除已取消。')
+            return redirect('collection_detail', collection_id=self.object.pk)
+        return super().post(request, *args, **kwargs)
 
 
 @login_required

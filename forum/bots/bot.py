@@ -5,4 +5,4 @@ class BotBase():
         self.id = id
 
     def handler(self, context):
-        self.manager.send_comment(context.get(id), self.id, "Hello! I'm bot base.")
+        self.manager.send_comment(context.get("id"), self.id, "Hello! I'm bot base.")

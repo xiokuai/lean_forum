@@ -26,7 +26,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY",default='@q6xb*zrpbs!5j3$g=26f8w(b#669!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get("DEBUG", default=0))
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", default="*").split(",")
 
 
 # Application definition
@@ -146,9 +146,9 @@ LOGIN_URL= 'login'
 
 # please set your own VAPID keys here in production
 WEBPUSH_SETTINGS = {
-    "VAPID_PUBLIC_KEY": "BO2V65XdP_gUebE7mEkw8gdO0xOcCInw7NAjnjO1n1hUI0oOklzYBA4lAMIA7iU5-NkHtOM__XnhmL7DGlfcLQc",
-    "VAPID_PRIVATE_KEY":"-JvRFwRAYw4gb6nhLvCrXzEBDOoMES_QVxWibh2KFek",
-    "VAPID_ADMIN_EMAIL": "admin@example.com"
+    "VAPID_PUBLIC_KEY": os.environ.get("VAPID_PUBLIC_KEY", default="BO2V65XdP_gUebE7mEkw8gdO0xOcCInw7NAjnjO1n1hUI0oOklzYBA4lAMIA7iU5-NkHtOM__XnhmL7DGlfcLQc"),
+    "VAPID_PRIVATE_KEY": os.environ.get("VAPID_PRIVATE_KEY", default="-JvRFwRAYw4gb6nhLvCrXzEBDOoMES_QVxWibh2KFek"),
+    "VAPID_ADMIN_EMAIL": os.environ.get("VAPID_ADMIN_EMAIL", default="admin@example.com")
 }
 
 REST_FRAMEWORK = {
