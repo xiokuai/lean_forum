@@ -21,7 +21,7 @@ allowed_ext = [
 ]
 
 @require_POST
-def uplaod_view(request):
+def upload_view(request):
     if not request.user.is_authenticated:
         return JsonResponse(
             {"error":"login required"},

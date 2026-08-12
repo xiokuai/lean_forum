@@ -7,12 +7,35 @@
     <title>{% block title %}Lean Forum{% endblock %}</title>
     <meta name="color-scheme" content="light dark" />
     <script>
-      function getTheme() {
-        const saved = localStorage.getItem('theme');
-        if (saved === 'light' || saved === 'dark') return saved;
-        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      }
-      document.documentElement.setAttribute('data-bs-theme', getTheme());
+      (function () {
+        try {
+          function getTheme() {
+            var saved = localStorage.getItem('theme');
+            if (saved === 'light' || saved === 'dark') return saved;
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          }
+          var t = getTheme();
+          document.documentElement.setAttribute('data-bs-theme', t);
+          document.documentElement.setAttribute('data-theme-initialized', '1');
+          // 禁用不符合当前主题的 markdown / highlight 样式表，避免首屏 FOUC
+          var applyDisabled = function () {
+            var isDark = t === 'dark';
+            var ml = document.getElementById('github-markdown-light');
+            var md = document.getElementById('github-markdown-dark');
+            if (ml) ml.disabled = isDark;
+            if (md) md.disabled = !isDark;
+            var hl = document.getElementById('highlightjs-light');
+            var hd = document.getElementById('highlightjs-dark');
+            if (hl) hl.disabled = isDark;
+            if (hd) hd.disabled = !isDark;
+          };
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', applyDisabled, { once: true });
+          } else {
+            applyDisabled();
+          }
+        } catch (_) {}
+      })();
     </script>
     <link
       id="github-markdown-light"
@@ -25,7 +48,6 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.9.0/github-markdown-dark.min.css"
       referrerpolicy="no-referrer"
-      disabled
     />
 
     <link
@@ -37,7 +59,6 @@
       id="highlightjs-dark"
       rel="stylesheet"
       href="https://unpkg.com/@highlightjs/cdn-assets@11.11.1/styles/github-dark.min.css"
-      disabled
     />
     <script src="https://unpkg.com/@highlightjs/cdn-assets@11.11.1/highlight.min.js"></script>
 
