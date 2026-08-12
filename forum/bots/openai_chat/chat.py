@@ -17,7 +17,7 @@ class ChatBot(BotBase):
 Post Information(Please give a single concise reply):
 Title: {context.get("title", "")}
 Author: {context.get("author", "")}
-Created At: {context.get("create_at", "")}
+Created At: {context.get("created_at", "")}
 
 Content:
 {context.get("content", "")}
