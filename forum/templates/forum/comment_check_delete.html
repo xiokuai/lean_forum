@@ -13,7 +13,6 @@
             <p>请计算 <strong>{{ a }} + {{ b }}</strong> = ?</p>
             <form method="post">
               {% csrf_token %}
-              <input type="hidden" name="expected" value="{{ answer }}" />
               <input type="text" name="answer" class="form-control" required autocomplete="off" />
               <br />
               <div class="d-grid gap-2">
