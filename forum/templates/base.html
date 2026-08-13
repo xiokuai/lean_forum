@@ -7,12 +7,16 @@
     <title>{% block title %}Lean Forum{% endblock %}</title>
     <meta name="color-scheme" content="light dark" />
     <script>
-      function getTheme() {
-        const saved = localStorage.getItem('theme');
-        if (saved === 'light' || saved === 'dark') return saved;
-        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      }
-      document.documentElement.setAttribute('data-bs-theme', getTheme());
+      // 首屏尽早设置主题，避免 FOUC；详细切换逻辑统一由 body 末尾 syncTheme 处理
+      (function () {
+        try {
+          var saved = localStorage.getItem('theme');
+          var t = saved === 'light' || saved === 'dark'
+            ? saved
+            : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          document.documentElement.setAttribute('data-bs-theme', t);
+        } catch (_) {}
+      })();
     </script>
     <link
       id="github-markdown-light"
@@ -25,7 +29,6 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.9.0/github-markdown-dark.min.css"
       referrerpolicy="no-referrer"
-      disabled
     />
 
     <link
@@ -37,7 +40,6 @@
       id="highlightjs-dark"
       rel="stylesheet"
       href="https://unpkg.com/@highlightjs/cdn-assets@11.11.1/styles/github-dark.min.css"
-      disabled
     />
     <script src="https://unpkg.com/@highlightjs/cdn-assets@11.11.1/highlight.min.js"></script>
 
@@ -234,6 +236,12 @@
       const markdownDark = document.getElementById('github-markdown-dark');
       const prefersDarkMedia = window.matchMedia('(prefers-color-scheme: dark)');
       const btn = document.getElementById('back-to-top');
+
+      function getTheme() {
+        const saved = localStorage.getItem('theme');
+        if (saved === 'light' || saved === 'dark') return saved;
+        return prefersDarkMedia.matches ? 'dark' : 'light';
+      }
 
       function updateThemeIcon(isDark) {
         if (themeIcon) {

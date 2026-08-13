@@ -21,12 +21,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("SECRET_KEY",default='@q6xb*zrpbs!5j3$g=26f8w(b#669!v35oc(ws&lq46tkjf=72')
+SECRET_KEY = os.environ.get("SECRET_KEY", default='django-insecure-dev-placeholder-change-me')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get("DEBUG", default=0))
 
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", default="*").split(",")
+# ALLOWED_HOSTS 通过环境变量配置（逗号分隔）；
+# 未设置时默认 ["*"]，如需严格限制生产域名请显式传入 ALLOWED_HOSTS
+ALLOWED_HOSTS = [
+    h.strip()
+    for h in os.environ.get("ALLOWED_HOSTS", default="*").split(",")
+    if h.strip()
+]
 
 
 # Application definition
@@ -58,9 +64,19 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOWED_ORIGINS = []
+# 通过 CORS_ALLOWED_ORIGINS 环境变量配置生产来源（逗号分隔）
+CORS_ALLOWED_ORIGINS = [
+    o.strip()
+    for o in os.environ.get("CORS_ALLOWED_ORIGINS", "").split(",")
+    if o.strip()
+]
 
-CORS_ALLOW_ALL_ORIGINS = DEBUG  # Allow all origins in development mode
+# 仅在 DEBUG 且未配置 CORS_ALLOWED_ORIGINS 时允许全部来源，
+# 防止生产部署遗忘来源列表带来的 CSRF/CORS 风险
+CORS_ALLOW_ALL_ORIGINS = DEBUG and not CORS_ALLOWED_ORIGINS
+
+# 仅允许在配置了可信来源时携带凭证
+CORS_ALLOW_CREDENTIALS = bool(CORS_ALLOWED_ORIGINS)
 
 ROOT_URLCONF = 'lean_forum.urls'
 

@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, redirect, render
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.views.generic import ListView, View, DeleteView
@@ -243,6 +244,7 @@ def user_delete_view(request):
             messages.error(request, '账户信息不匹配，删除已取消。')
             return redirect('settings')
 
+@require_POST
 def logout_view(request):
     logout(request)
     return redirect('login')
