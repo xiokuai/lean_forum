@@ -21,22 +21,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# 仅当未设置环境变量时使用开发占位密钥；生产环境必须通过 SECRET_KEY 环境变量注入
-_SECRET_KEY_ENV = os.environ.get("SECRET_KEY")
-SECRET_KEY = _SECRET_KEY_ENV or 'django-insecure-dev-placeholder-change-me'
+SECRET_KEY = os.environ.get("SECRET_KEY", default='django-insecure-dev-placeholder-change-me')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get("DEBUG", default=0))
 
-# 生产环境必须通过环境变量显式指定允许的域名；
-# 开发环境未设置时退化为 ["*"]，生产未设置时退化为 ["localhost", "127.0.0.1"]
-_ALLOWED_HOSTS_ENV = os.environ.get("ALLOWED_HOSTS")
-if _ALLOWED_HOSTS_ENV:
-    ALLOWED_HOSTS = [h.strip() for h in _ALLOWED_HOSTS_ENV.split(",") if h.strip()]
-elif DEBUG:
-    ALLOWED_HOSTS = ["*"]
-else:
-    ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+# ALLOWED_HOSTS 通过环境变量配置（逗号分隔）；
+# 未设置时默认 ["*"]，如需严格限制生产域名请显式传入 ALLOWED_HOSTS
+ALLOWED_HOSTS = [
+    h.strip()
+    for h in os.environ.get("ALLOWED_HOSTS", default="*").split(",")
+    if h.strip()
+]
 
 
 # Application definition
@@ -68,12 +64,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# 建议通过 CORS_ALLOWED_ORIGINS 环境变量配置生产来源（逗号分隔）
-_CORS_ENV = os.environ.get("CORS_ALLOWED_ORIGINS")
-if _CORS_ENV:
-    CORS_ALLOWED_ORIGINS = [o.strip() for o in _CORS_ENV.split(",") if o.strip()]
-else:
-    CORS_ALLOWED_ORIGINS = []
+# 通过 CORS_ALLOWED_ORIGINS 环境变量配置生产来源（逗号分隔）
+CORS_ALLOWED_ORIGINS = [
+    o.strip()
+    for o in os.environ.get("CORS_ALLOWED_ORIGINS", "").split(",")
+    if o.strip()
+]
 
 # 仅在 DEBUG 且未配置 CORS_ALLOWED_ORIGINS 时允许全部来源，
 # 防止生产部署遗忘来源列表带来的 CSRF/CORS 风险
@@ -166,9 +162,9 @@ LOGIN_URL= 'login'
 
 # please set your own VAPID keys here in production
 WEBPUSH_SETTINGS = {
-    "VAPID_PUBLIC_KEY": "BO2V65XdP_gUebE7mEkw8gdO0xOcCInw7NAjnjO1n1hUI0oOklzYBA4lAMIA7iU5-NkHtOM__XnhmL7DGlfcLQc",
-    "VAPID_PRIVATE_KEY":"-JvRFwRAYw4gb6nhLvCrXzEBDOoMES_QVxWibh2KFek",
-    "VAPID_ADMIN_EMAIL": "admin@example.com"
+    "VAPID_PUBLIC_KEY": os.environ.get("VAPID_PUBLIC_KEY", default="BO2V65XdP_gUebE7mEkw8gdO0xOcCInw7NAjnjO1n1hUI0oOklzYBA4lAMIA7iU5-NkHtOM__XnhmL7DGlfcLQc"),
+    "VAPID_PRIVATE_KEY": os.environ.get("VAPID_PRIVATE_KEY", default="-JvRFwRAYw4gb6nhLvCrXzEBDOoMES_QVxWibh2KFek"),
+    "VAPID_ADMIN_EMAIL": os.environ.get("VAPID_ADMIN_EMAIL", default="admin@example.com")
 }
 
 REST_FRAMEWORK = {

@@ -7,14 +7,21 @@
     <title>{% block title %}Lean Forum{% endblock %}</title>
     <meta name="color-scheme" content="light dark" />
     <script>
-      // 全局函数：body 末尾的主题切换脚本也需要调用
-      function getTheme() {
-        var saved = localStorage.getItem('theme');
-        if (saved === 'light' || saved === 'dark') return saved;
-        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      }
-      // 立即设置 data-bs-theme，避免 Bootstrap 主题 FOUC
-      document.documentElement.setAttribute('data-bs-theme', getTheme());
+      // 全局 getTheme：供 head 内样式表切换 + body 末尾主题逻辑共用
+      // 尽早设置 data-bs-theme，避免 FOUC；详细切换逻辑由 body 末尾 syncTheme 统一处理
+      (function () {
+        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+        window.getTheme = function () {
+          try {
+            var saved = localStorage.getItem('theme');
+            if (saved === 'light' || saved === 'dark') return saved;
+          } catch (_) {}
+          return prefersDark.matches ? 'dark' : 'light';
+        };
+        try {
+          document.documentElement.setAttribute('data-bs-theme', window.getTheme());
+        } catch (_) {}
+      })();
     </script>
     <link
       id="github-markdown-light"
