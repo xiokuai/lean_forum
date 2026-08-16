@@ -3,6 +3,7 @@ from . import views, api
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('search/', views.search_view, name='search'),
     path('rate/<int:item_id>/', views.rate_item, name='rate_item'),
     path('posts/', views.PostListView.as_view(), name='post_list'),
     path('posts/create/', views.post_create, name='post_create'),
